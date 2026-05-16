@@ -5,6 +5,7 @@
   "version": "0.1.0",
   "publisher": "local",
   "private": true,
+  "icon": "assets/jeom-icon.svg",
   "license": "UNLICENSED",
   "keywords": [
     "jeom",

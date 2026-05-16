@@ -1,4 +1,10 @@
-# JEOM VS Code Runner
+# <img src="assets/jeom-icon.svg" width="22" alt="JEOM" /> JEOM VS Code Runner
+
+<p>
+  <a href="README.md">📖 <strong>README</strong></a>
+  &nbsp;&nbsp;
+  <a href="COMPATIBILITY.md">🔗 <strong>Compatibility</strong></a>
+</p>
 
 VS Code에서 점랭(`.jeom`) 파일을 바로 실행하기 위한 비공식 보조 프로젝트입니다.
 
@@ -12,6 +18,7 @@ VS Code에서 점랭(`.jeom`) 파일을 바로 실행하기 위한 비공식 보
 ## 기능
 
 - `.jeom` 파일 언어 인식
+- `.jeom` 파일 아이콘 표시
 - 기본 문법 하이라이트
 - 기본 스니펫
 - `Ctrl + Shift + B`로 현재 `.jeom` 파일 실행
