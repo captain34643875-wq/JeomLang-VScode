@@ -64,18 +64,23 @@ async function runJeom(context, uri, mode) {
   const document = await vscode.workspace.openTextDocument(targetUri);
   if (document.isDirty) await document.save();
 
-  const cliPath = resolveCliPath(context, targetUri);
-  if (!fs.existsSync(cliPath)) {
-    vscode.window.showErrorMessage(`JEOM CLI was not found: ${cliPath}`);
-    return;
-  }
-
   const cwd = resolveCwd(targetUri);
+  const workspaceFolder = vscode.workspace.getWorkspaceFolder(targetUri);
+  const workspacePath = workspaceFolder ? workspaceFolder.uri.fsPath : '';
+  const cliPath = resolveCliPath(context, targetUri, workspacePath);
+  const commandBody = resolveCommandBody(mode, {
+    cliPath,
+    filePath,
+    workspacePath
+  });
+
+  if (!commandBody) return;
+
   const command = [
     `$env:NODE_OPTIONS=''`,
     `$env:VSCODE_INSPECTOR_OPTIONS=''`,
     `Set-Location -LiteralPath ${quoteForPowerShell(cwd)}`,
-    `node ${quoteForPowerShell(cliPath)} ${mode} ${quoteForPowerShell(filePath)}`
+    commandBody
   ].join('; ');
 
   terminal = terminal || createJeomTerminal();
@@ -99,9 +104,7 @@ function resolveTargetUri(uri) {
   return editor ? editor.document.uri : undefined;
 }
 
-function resolveCliPath(context, targetUri) {
-  const workspaceFolder = vscode.workspace.getWorkspaceFolder(targetUri);
-  const workspacePath = workspaceFolder ? workspaceFolder.uri.fsPath : '';
+function resolveCliPath(context, targetUri, workspacePath) {
   const configured = vscode.workspace.getConfiguration('jeom').get('cliPath', '').trim();
 
   if (configured) {
@@ -110,10 +113,52 @@ function resolveCliPath(context, targetUri) {
       .replace(/\//g, path.sep);
   }
 
-  const workspaceCli = workspacePath ? path.join(workspacePath, 'jeom_cli.js') : '';
-  if (workspaceCli && fs.existsSync(workspaceCli)) return workspaceCli;
+  const candidates = [
+    workspacePath ? path.join(workspacePath, 'official', 'cli.js') : '',
+    workspacePath ? path.join(workspacePath, 'cli.js') : '',
+    workspacePath ? path.join(workspacePath, 'jeom_cli.js') : '',
+    path.join(context.extensionPath, 'official', 'cli.js'),
+    path.join(context.extensionPath, 'cli.js'),
+    path.join(context.extensionPath, 'jeom_cli.js')
+  ].filter(Boolean);
 
-  return path.join(context.extensionPath, 'jeom_cli.js');
+  const found = candidates.find(candidate => fs.existsSync(candidate));
+  return found || path.join(context.extensionPath, 'jeom_cli.js');
+}
+
+function resolveCommandBody(mode, vars) {
+  const config = vscode.workspace.getConfiguration('jeom');
+  const settingName = mode === 'check' ? 'checkCommand' : 'runCommand';
+  const template = config.get(settingName, '').trim();
+
+  if (template) {
+    return expandCommandTemplate(template, {
+      ...vars,
+      mode
+    });
+  }
+
+  if (!fs.existsSync(vars.cliPath)) {
+    vscode.window.showErrorMessage(`JEOM CLI was not found: ${vars.cliPath}`);
+    return undefined;
+  }
+
+  return `node ${quoteForPowerShell(vars.cliPath)} ${mode} ${quoteForPowerShell(vars.filePath)}`;
+}
+
+function expandCommandTemplate(template, vars) {
+  const replacements = {
+    '${file}': quoteForPowerShell(vars.filePath),
+    '${filePath}': quoteForPowerShell(vars.filePath),
+    '${workspaceFolder}': quoteForPowerShell(vars.workspacePath),
+    '${cliPath}': quoteForPowerShell(vars.cliPath),
+    '${mode}': vars.mode
+  };
+
+  return Object.entries(replacements).reduce(
+    (command, [placeholder, value]) => command.split(placeholder).join(value),
+    template
+  );
 }
 
 function resolveCwd(targetUri) {

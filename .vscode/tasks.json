@@ -6,7 +6,7 @@
       "type": "shell",
       "command": "node",
       "args": [
-        "jeom_cli.js",
+        "official/cli.js",
         "run",
         "${file}"
       ],

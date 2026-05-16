@@ -15,11 +15,14 @@ $files = @(
   "extension.js",
   "jeom_cli.js",
   "jeom_engine.js",
-  "language-configuration.json"
+  "language-configuration.json",
+  "README.md",
+  "COMPATIBILITY.md"
 )
 
 $dirs = @(
   "assets",
+  "official",
   "snippets",
   "syntaxes"
 )

@@ -3,6 +3,6 @@
     "*.jeom": "jeom"
   },
   "code-runner.executorMapByFileExtension": {
-    ".jeom": "node \"${workspaceFolder}\\jeom_cli.js\" run \"$fullFileName\""
+    ".jeom": "node \"${workspaceFolder}\\official\\cli.js\" run \"$fullFileName\""
   }
 }

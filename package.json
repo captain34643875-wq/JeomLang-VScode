@@ -126,7 +126,17 @@
         "jeom.cliPath": {
           "type": "string",
           "default": "",
-          "description": "Optional path to jeom_cli.js. Supports ${workspaceFolder}. If empty, the extension uses its bundled jeom_cli.js."
+          "description": "Optional path to a JEOM CLI. Supports ${workspaceFolder}. If empty, the extension uses official/cli.js first, then cli.js or jeom_cli.js fallbacks."
+        },
+        "jeom.runCommand": {
+          "type": "string",
+          "default": "",
+          "description": "Optional PowerShell command template for running a JEOM file with an external CLI. Supports ${file}, ${filePath}, ${workspaceFolder}, ${cliPath}, and ${mode}. If empty, the bundled-compatible Node CLI is used."
+        },
+        "jeom.checkCommand": {
+          "type": "string",
+          "default": "",
+          "description": "Optional PowerShell command template for checking a JEOM file with an external CLI. Supports ${file}, ${filePath}, ${workspaceFolder}, ${cliPath}, and ${mode}. If empty, the bundled-compatible Node CLI is used."
         },
         "jeom.showCodeLens": {
           "type": "boolean",
